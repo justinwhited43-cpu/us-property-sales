@@ -42,23 +42,21 @@
 
   <div id="map"></div>
 
- <script>
-  // Initialize map
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
   const map = L.map('map').setView([39.917, -83.808], 11);
 
-  // Base map tiles
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  // Example sales data
   const sales = [
     { lat: 39.923, lon: -83.810, price: "$215,000", daysAgo: 12 },
     { lat: 39.905, lon: -83.825, price: "$180,000", daysAgo: 28 },
     { lat: 39.940, lon: -83.790, price: "$95,000 (Lot)", daysAgo: 7 }
   ];
 
-  // Layer group to manage markers
   const salesLayer = L.layerGroup().addTo(map);
 
   function drawSales(maxDays) {
@@ -67,23 +65,22 @@
     sales
       .filter(s => s.daysAgo <= maxDays)
       .forEach(sale => {
-        L.circleMarker([sale.lat, sale.lon], {
-          radius: 7
-        })
-        .bindPopup(
-          `<strong>${sale.price}</strong><br>Sold ${sale.daysAgo} days ago`
-        )
-        .addTo(salesLayer);
+        L.circleMarker([sale.lat, sale.lon], { radius: 7 })
+          .bindPopup(
+            `<strong>${sale.price}</strong><br>Sold ${sale.daysAgo} days ago`
+          )
+          .addTo(salesLayer);
       });
   }
 
-  function filterSales(days) {
+  window.filterSales = function(days) {
     drawSales(days);
-  }
+  };
 
-  // Default view
   drawSales(30);
+});
 </script>
+
  
 </body>
 </html>
