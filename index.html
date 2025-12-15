@@ -45,7 +45,11 @@
 
 sales.forEach(sale => {
   L.circleMarker([sale.lat, sale.lon], {
-    radius: 7
+  radius: 8,
+  color: "#ff0000",
+  fillColor: "#ff0000",
+  fillOpacity: 0.9,
+  weight: 2
   })
   .addTo(map)
   .bindPopup(sale.label);
