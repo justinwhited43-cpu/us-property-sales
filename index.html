@@ -46,11 +46,39 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Example marker (we'll replace with real sales later)
-    L.marker([39.917, -83.808])
-      .addTo(map)
-      .bindPopup("Clark County, Ohio")
-      .openPopup();
+   // Example "recently sold" properties (fake data for now)
+const sales = [
+  {
+    lat: 39.923,
+    lon: -83.810,
+    price: "$215,000",
+    date: "Sold 12 days ago"
+  },
+  {
+    lat: 39.905,
+    lon: -83.825,
+    price: "$180,000",
+    date: "Sold 28 days ago"
+  },
+  {
+    lat: 39.940,
+    lon: -83.790,
+    price: "$95,000 (Lot)",
+    date: "Sold 7 days ago"
+  }
+];
+
+// Add markers to map
+sales.forEach(sale => {
+  L.circleMarker([sale.lat, sale.lon], {
+    radius: 7
+  })
+  .addTo(map)
+  .bindPopup(
+    `<strong>${sale.price}</strong><br>${sale.date}`
+  );
+});
+
   </script>
 
 </body>
