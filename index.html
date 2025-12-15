@@ -37,10 +37,20 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    L.marker([39.917, -83.808])
-      .addTo(map)
-      .bindPopup("Clark County, Ohio")
-      .openPopup();
+   const sales = [
+  { lat: 39.923, lon: -83.810, label: "$215,000 · 12 days ago" },
+  { lat: 39.905, lon: -83.825, label: "$180,000 · 28 days ago" },
+  { lat: 39.940, lon: -83.790, label: "$95,000 (Lot) · 7 days ago" }
+];
+
+sales.forEach(sale => {
+  L.circleMarker([sale.lat, sale.lon], {
+    radius: 7
+  })
+  .addTo(map)
+  .bindPopup(sale.label);
+});
+ 
   </script> 
 
 </body>
