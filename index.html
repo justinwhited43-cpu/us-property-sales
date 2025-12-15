@@ -42,73 +42,48 @@
 
   <div id="map"></div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // Initialize map centered on Clark County, OH
-    const map = L.map('map').setView([39.917, -83.808], 11);
+  // Initialize map
+  const map = L.map('map').setView([39.917, -83.808], 11);
 
-    // Free OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+  // Base map tiles
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
 
- // Example "recently sold" properties (fake data for now)
-const sales = [
-  {
-    lat: 39.923,
-    lon: -83.810,
-    price: "$215,000",
-    daysAgo: 12
-  },
-  {
-    lat: 39.905,
-    lon: -83.825,
-    price: "$180,000",
-    daysAgo: 28
-  },
-  {
-    lat: 39.940,
-    lon: -83.790,
-    price: "$95,000 (Lot)",
-    daysAgo: 7
+  // Example sales data
+  const sales = [
+    { lat: 39.923, lon: -83.810, price: "$215,000", daysAgo: 12 },
+    { lat: 39.905, lon: -83.825, price: "$180,000", daysAgo: 28 },
+    { lat: 39.940, lon: -83.790, price: "$95,000 (Lot)", daysAgo: 7 }
+  ];
+
+  // Layer group to manage markers
+  const salesLayer = L.layerGroup().addTo(map);
+
+  function drawSales(maxDays) {
+    salesLayer.clearLayers();
+
+    sales
+      .filter(s => s.daysAgo <= maxDays)
+      .forEach(sale => {
+        L.circleMarker([sale.lat, sale.lon], {
+          radius: 7
+        })
+        .bindPopup(
+          `<strong>${sale.price}</strong><br>Sold ${sale.daysAgo} days ago`
+        )
+        .addTo(salesLayer);
+      });
   }
-];
 
-let markers = [];
+  function filterSales(days) {
+    drawSales(days);
+  }
 
-// Draw markers based on filter
-function drawSales(maxDays) {
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
-
-  sales
-    .filter(s => s.daysAgo <= maxDays)
-    .forEach(sale => {
-      const marker = L.circleMarker([sale.lat, sale.lon], {
-        radius: 7
-      })
-      .addTo(map)
-      .bindPopup(
-        `<strong>${sale.price}</strong><br>Sold ${sale.daysAgo} days ago`
-      );
-
-      markers.push(marker);
-    });
-}
-
-// Button handler
-function filterSales(days) {
-  drawSales(days);
-}
-
-// Show last 30 days by default
-drawSales(30);
-
-
-  );
-});
-
-  </script>
+  // Default view
+  drawSales(30);
+</script>
 
 </body>
 </html>
