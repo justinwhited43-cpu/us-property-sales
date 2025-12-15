@@ -25,7 +25,14 @@
 </head>
 <body>
 
-  <div id="map"></div>
+  <div style="padding: 10px; background: #f4f4f4; text-align: center;">
+  <button onclick="showType('all')">All</button>
+  <button onclick="showType('house')">Houses</button>
+  <button onclick="showType('lot')">Lots</button>
+</div>
+
+<div id="map"></div>
+
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
