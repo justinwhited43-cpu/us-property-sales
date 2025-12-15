@@ -30,9 +30,15 @@
 <body>
 
   <header>
-    <h2>US Property Sales</h2>
-    <p>Clark County, Ohio (Starter Map)</p>
-  </header>
+  <h2>US Property Sales</h2>
+  <p>Clark County, Ohio</p>
+
+  <div style="margin-top: 8px;">
+    <button onclick="filterSales(7)">Last 7 Days</button>
+    <button onclick="filterSales(30)">Last 30 Days</button>
+    <button onclick="filterSales(90)">Last 90 Days</button>
+  </div>
+</header>
 
   <div id="map"></div>
 
@@ -52,30 +58,52 @@ const sales = [
     lat: 39.923,
     lon: -83.810,
     price: "$215,000",
-    date: "Sold 12 days ago"
+    daysAgo: 12
   },
   {
     lat: 39.905,
     lon: -83.825,
     price: "$180,000",
-    date: "Sold 28 days ago"
+    daysAgo: 28
   },
   {
     lat: 39.940,
     lon: -83.790,
     price: "$95,000 (Lot)",
-    date: "Sold 7 days ago"
+    daysAgo: 7
   }
 ];
 
-// Add markers to map
-sales.forEach(sale => {
-  L.circleMarker([sale.lat, sale.lon], {
-    radius: 7
-  })
-  .addTo(map)
-  .bindPopup(
-    `<strong>${sale.price}</strong><br>${sale.date}`
+let markers = [];
+
+// Draw markers based on filter
+function drawSales(maxDays) {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
+  sales
+    .filter(s => s.daysAgo <= maxDays)
+    .forEach(sale => {
+      const marker = L.circleMarker([sale.lat, sale.lon], {
+        radius: 7
+      })
+      .addTo(map)
+      .bindPopup(
+        `<strong>${sale.price}</strong><br>Sold ${sale.daysAgo} days ago`
+      );
+
+      markers.push(marker);
+    });
+}
+
+// Button handler
+function filterSales(days) {
+  drawSales(days);
+}
+
+// Show last 30 days by default
+drawSales(30);
+
   );
 });
 
