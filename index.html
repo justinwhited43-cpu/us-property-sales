@@ -57,24 +57,19 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Legend
+    // Legend (safe reference)
+    let legendDiv;
+
     const legend = L.control({ position: "bottomleft" });
 
     legend.onAdd = function () {
-      const div = L.DomUtil.create("div");
-      div.style.background = "white";
-      div.style.padding = "10px";
-      div.style.borderRadius = "6px";
-      div.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
-      div.style.fontSize = "14px";
-
-      div.innerHTML = `
-  <strong>Legend</strong><br>
-  <span style="color:#1d4ed8;">●</span> Houses: <span id="houseCount">0</span><br>
-  <span style="color:#92400e;">●</span> Lots: <span id="lotCount">0</span>
-`;
-
-      return div;
+      legendDiv = L.DomUtil.create("div");
+      legendDiv.style.background = "white";
+      legendDiv.style.padding = "10px";
+      legendDiv.style.borderRadius = "6px";
+      legendDiv.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
+      legendDiv.style.fontSize = "14px";
+      return legendDiv;
     };
 
     legend.addTo(map);
@@ -89,43 +84,44 @@
     let markers = [];
 
     function draw(type) {
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
 
-  let houseCount = 0;
-  let lotCount = 0;
+      let houseCount = 0;
+      let lotCount = 0;
 
-  sales.forEach(sale => {
-    if (type !== "all" && sale.type !== type) return;
+      sales.forEach(sale => {
+        if (type !== "all" && sale.type !== type) return;
 
-    const color = sale.type === "house" ? "#1d4ed8" : "#92400e";
+        const color = sale.type === "house" ? "#1d4ed8" : "#92400e";
 
-    const marker = L.circleMarker([sale.lat, sale.lon], {
-      radius: 7,
-      fillColor: color,
-      color: "#000",
-      weight: 1,
-      opacity: 1,
-      fillOpacity: 0.8
-    })
-      .addTo(map)
-      .bindPopup(
-        `<strong>${sale.price}</strong><br>${sale.type.toUpperCase()}`
-      );
+        const marker = L.circleMarker([sale.lat, sale.lon], {
+          radius: 7,
+          fillColor: color,
+          color: "#000",
+          weight: 1,
+          opacity: 1,
+          fillOpacity: 0.8
+        })
+          .addTo(map)
+          .bindPopup(
+            `<strong>${sale.price}</strong><br>${sale.type.toUpperCase()}`
+          );
 
-    markers.push(marker);
+        markers.push(marker);
 
-    if (sale.type === "house") houseCount++;
-    if (sale.type === "lot") lotCount++;
-  });
+        if (sale.type === "house") houseCount++;
+        if (sale.type === "lot") lotCount++;
+      });
 
-  // Update legend counts
-  document.getElementById("houseCount").textContent = houseCount;
-  document.getElementById("lotCount").textContent = lotCount;
-}
+      // Update legend counts
+      legendDiv.innerHTML = `
+        <strong>Legend</strong><br>
+        <span style="color:#1d4ed8;">●</span> Houses: ${houseCount}<br>
+        <span style="color:#92400e;">●</span> Lots: ${lotCount}
+      `;
     }
 
-    // Button handler
     function showType(type) {
       draw(type);
     }
