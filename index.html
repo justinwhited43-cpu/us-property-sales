@@ -89,29 +89,40 @@
     let markers = [];
 
     function draw(type) {
-      markers.forEach(m => map.removeLayer(m));
-      markers = [];
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
 
-      sales.forEach(sale => {
-        if (type !== "all" && sale.type !== type) return;
+  let houseCount = 0;
+  let lotCount = 0;
 
-        const color = sale.type === "house" ? "#1d4ed8" : "#92400e";
+  sales.forEach(sale => {
+    if (type !== "all" && sale.type !== type) return;
 
-        const marker = L.circleMarker([sale.lat, sale.lon], {
-          radius: 7,
-          fillColor: color,
-          color: "#000",
-          weight: 1,
-          opacity: 1,
-          fillOpacity: 0.8
-        })
-          .addTo(map)
-          .bindPopup(
-            `<strong>${sale.price}</strong><br>${sale.type.toUpperCase()}`
-          );
+    const color = sale.type === "house" ? "#1d4ed8" : "#92400e";
 
-        markers.push(marker);
-      });
+    const marker = L.circleMarker([sale.lat, sale.lon], {
+      radius: 7,
+      fillColor: color,
+      color: "#000",
+      weight: 1,
+      opacity: 1,
+      fillOpacity: 0.8
+    })
+      .addTo(map)
+      .bindPopup(
+        `<strong>${sale.price}</strong><br>${sale.type.toUpperCase()}`
+      );
+
+    markers.push(marker);
+
+    if (sale.type === "house") houseCount++;
+    if (sale.type === "lot") lotCount++;
+  });
+
+  // Update legend counts
+  document.getElementById("houseCount").textContent = houseCount;
+  document.getElementById("lotCount").textContent = lotCount;
+}
     }
 
     // Button handler
