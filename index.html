@@ -46,7 +46,7 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-   // Example "recently sold" properties (fake data for now)
+ // Example "recently sold" properties (fake data for now)
 const sales = [
   {
     lat: 39.923,
@@ -76,6 +76,9 @@ sales.forEach(sale => {
   .addTo(map)
   .bindPopup(
     `<strong>${sale.price}</strong><br>${sale.date}`
+  );
+});
+
   );
 });
 
