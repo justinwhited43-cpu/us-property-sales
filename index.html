@@ -43,34 +43,42 @@
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  // Sales data with type
+  // Property data
   const sales = [
     { lat: 39.923, lon: -83.810, price: "$215,000", type: "house" },
     { lat: 39.905, lon: -83.825, price: "$180,000", type: "house" },
     { lat: 39.940, lon: -83.790, price: "$95,000", type: "lot" }
   ];
 
-  const layer = L.layerGroup().addTo(map);
+  let markers = [];
 
   function draw(type) {
-    layer.clearLayers();
+    // Remove old markers
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
 
     sales.forEach(sale => {
       if (type !== "all" && sale.type !== type) return;
 
-      const color = sale.type === "house" ? "#1d4ed8" : "#92400e";
+      const iconColor = sale.type === "house" ? "blue" : "brown";
 
-      L.circleMarker([sale.lat, sale.lon], {
-        radius: 8,
-        color: color,
-        fillColor: color,
-        fillOpacity: 0.85,
-        weight: 2
+      const marker = L.marker([sale.lat, sale.lon], {
+        icon: L.icon({
+          iconUrl:
+            iconColor === "blue"
+              ? "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png"
+              : "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-brown.png",
+          shadowUrl:
+            "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34]
+        })
       })
-      .addTo(layer)
-      .bindPopup(
-        `<strong>${sale.price}</strong><br>${sale.type.toUpperCase()}`
-      );
+        .addTo(map)
+        .bindPopup(`<strong>${sale.price}</strong><br>${sale.type.toUpperCase()}`);
+
+      markers.push(marker);
     });
   }
 
@@ -78,9 +86,10 @@
     draw(type);
   };
 
-  // Default: show all
+  // Default
   draw("all");
 </script>
+
  
 </body>
 </html>
