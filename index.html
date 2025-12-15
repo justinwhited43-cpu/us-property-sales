@@ -1,150 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>US Property Sales</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  const map = L.map('map').setView([39.917, -83.808], 11);
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
 
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
-    }
+  const legend = L.control({ position: "bottomleft" });
+  let legendDiv;
 
-    #controls {
-      background: #f4f4f4;
-      padding: 8px;
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+  legend.onAdd = function () {
+    legendDiv = L.DomUtil.create("div");
+    legendDiv.style.background = "white";
+    legendDiv.style.padding = "10px";
+    legendDiv.style.borderRadius = "6px";
+    legendDiv.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
+    return legendDiv;
+  };
 
-    #map {
-      height: calc(100vh - 70px);
-      width: 100vw;
-    }
-  </style>
-</head>
-<body>
+  legend.addTo(map);
 
-  <!-- Controls -->
-  <div id="controls">
-    <strong>Type:</strong>
-    <button onclick="setType('all')">All</button>
-    <button onclick="setType('house')">Houses</button>
-    <button onclick="setType('lot')">Lots</button>
+  let sales = [];
+  let markers = [];
+  let currentType = "all";
+  let maxDays = 30;
 
-    <strong>Time:</strong>
-    <button onclick="setDays(7)">7d</button>
-    <button onclick="setDays(30)">30d</button>
-    <button onclick="setDays(90)">90d</button>
-  </div>
-
-  <div id="map"></div>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <script>
-    // Map
-    const map = L.map('map').setView([39.917, -83.808], 11);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Legend
-    let legendDiv;
-    const legend = L.control({ position: "bottomleft" });
-
-    legend.onAdd = function () {
-      legendDiv = L.DomUtil.create("div");
-      legendDiv.style.background = "white";
-      legendDiv.style.padding = "10px";
-      legendDiv.style.borderRadius = "6px";
-      legendDiv.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
-      legendDiv.style.fontSize = "14px";
-      return legendDiv;
-    };
-
-    legend.addTo(map);
-
-    // State
-    let currentType = "all";
-    let maxDays = 30;
-
-    // Sample data (daysAgo simulates sale date)
-    const sales = [
-      { lat: 39.923, lon: -83.810, price: "$215,000", type: "house", daysAgo: 12 },
-      { lat: 39.905, lon: -83.825, price: "$180,000", type: "house", daysAgo: 45 },
-      { lat: 39.940, lon: -83.790, price: "$95,000", type: "lot", daysAgo: 7 },
-      { lat: 39.960, lon: -83.770, price: "$70,000", type: "lot", daysAgo: 85 }
-    ];
-
-    let markers = [];
-
-    function draw() {
-      markers.forEach(m => map.removeLayer(m));
-      markers = [];
-
-      let houseCount = 0;
-      let lotCount = 0;
-
-      sales.forEach(sale => {
-        if (sale.daysAgo > maxDays) return;
-        if (currentType !== "all" && sale.type !== currentType) return;
-
-        const color = sale.type === "house" ? "#1d4ed8" : "#92400e";
-
-        const marker = L.circleMarker([sale.lat, sale.lon], {
-          radius: 7,
-          fillColor: color,
-          color: "#000",
-          weight: 1,
-          opacity: 1,
-          fillOpacity: 0.8
-        })
-          .addTo(map)
-          .bindPopup(
-            `<strong>${sale.price}</strong><br>
-             ${sale.type.toUpperCase()}<br>
-             Sold ${sale.daysAgo} days ago`
-          );
-
-        markers.push(marker);
-
-        if (sale.type === "house") houseCount++;
-        if (sale.type === "lot") lotCount++;
+  fetch("sales.csv")
+    .then(res => res.text())
+    .then(text => {
+      const rows = text.trim().split("\n").slice(1);
+      sales = rows.map(row => {
+        const [lat, lon, price, type, daysAgo] = row.split(",");
+        return {
+          lat: +lat,
+          lon: +lon,
+          price: `$${Number(price).toLocaleString()}`,
+          type,
+          daysAgo: +daysAgo
+        };
       });
-
-      legendDiv.innerHTML = `
-        <strong>Legend</strong><br>
-        🔵 Houses: ${houseCount}<br>
-        🟤 Lots: ${lotCount}<br>
-        <em>Last ${maxDays} days</em>
-      `;
-    }
-
-    function setType(type) {
-      currentType = type;
       draw();
-    }
+    });
 
-    function setDays(days) {
-      maxDays = days;
-      draw();
-    }
+  function draw() {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
 
-    // Initial draw
+    let houseCount = 0;
+    let lotCount = 0;
+
+    sales.forEach(sale => {
+      if (sale.daysAgo > maxDays) return;
+      if (currentType !== "all" && sale.type !== currentType) return;
+
+      const color = sale.type === "house" ? "#1d4ed8" : "#92400e";
+
+      const marker = L.circleMarker([sale.lat, sale.lon], {
+        radius: 7,
+        fillColor: color,
+        color: "#000",
+        weight: 1,
+        fillOpacity: 0.8
+      })
+        .addTo(map)
+        .bindPopup(
+          `<strong>${sale.price}</strong><br>
+           ${sale.type.toUpperCase()}<br>
+           Sold ${sale.daysAgo} days ago`
+        );
+
+      markers.push(marker);
+
+      sale.type === "house" ? houseCount++ : lotCount++;
+    });
+
+    legendDiv.innerHTML = `
+      <strong>Legend</strong><br>
+      🔵 Houses: ${houseCount}<br>
+      🟤 Lots: ${lotCount}<br>
+      <em>Last ${maxDays} days</em>
+    `;
+  }
+
+  window.setType = type => {
+    currentType = type;
     draw();
-  </script>
+  };
 
-</body>
-</html>
+  window.setDays = days => {
+    maxDays = days;
+    draw();
+  };
+</script>
