@@ -33,36 +33,54 @@
 
 <div id="map"></div>
 
-
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <script>
-    const map = L.map('map').setView([39.917, -83.808], 11);
+ <script>
+  const map = L.map('map').setView([39.917, -83.808], 11);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
 
-   const sales = [
-  { lat: 39.923, lon: -83.810, label: "$215,000 · 12 days ago" },
-  { lat: 39.905, lon: -83.825, label: "$180,000 · 28 days ago" },
-  { lat: 39.940, lon: -83.790, label: "$95,000 (Lot) · 7 days ago" }
-];
+  // Sales data with type
+  const sales = [
+    { lat: 39.923, lon: -83.810, price: "$215,000", type: "house" },
+    { lat: 39.905, lon: -83.825, price: "$180,000", type: "house" },
+    { lat: 39.940, lon: -83.790, price: "$95,000", type: "lot" }
+  ];
 
-sales.forEach(sale => {
-  L.circleMarker([sale.lat, sale.lon], {
-  radius: 8,
-  color: "#ff0000",
-  fillColor: "#ff0000",
-  fillOpacity: 0.9,
-  weight: 2
-  })
-  .addTo(map)
-  .bindPopup(sale.label);
-});
+  const layer = L.layerGroup().addTo(map);
+
+  function draw(type) {
+    layer.clearLayers();
+
+    sales.forEach(sale => {
+      if (type !== "all" && sale.type !== type) return;
+
+      const color = sale.type === "house" ? "#1d4ed8" : "#92400e";
+
+      L.circleMarker([sale.lat, sale.lon], {
+        radius: 8,
+        color: color,
+        fillColor: color,
+        fillOpacity: 0.85,
+        weight: 2
+      })
+      .addTo(layer)
+      .bindPopup(
+        `<strong>${sale.price}</strong><br>${sale.type.toUpperCase()}`
+      );
+    });
+  }
+
+  window.showType = function(type) {
+    draw(type);
+  };
+
+  // Default: show all
+  draw("all");
+</script>
  
-  </script> 
-
 </body>
 </html>
