@@ -5,7 +5,6 @@
   <title>US Property Sales</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Leaflet CSS -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -20,16 +19,16 @@
     }
 
     #controls {
-      height: 50px;
       background: #f4f4f4;
+      padding: 8px;
       display: flex;
       justify-content: center;
-      align-items: center;
-      gap: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     #map {
-      height: calc(100vh - 50px);
+      height: calc(100vh - 70px);
       width: 100vw;
     }
   </style>
@@ -38,28 +37,31 @@
 
   <!-- Controls -->
   <div id="controls">
-    <button onclick="showType('all')">All</button>
-    <button onclick="showType('house')">Houses</button>
-    <button onclick="showType('lot')">Lots</button>
+    <strong>Type:</strong>
+    <button onclick="setType('all')">All</button>
+    <button onclick="setType('house')">Houses</button>
+    <button onclick="setType('lot')">Lots</button>
+
+    <strong>Time:</strong>
+    <button onclick="setDays(7)">7d</button>
+    <button onclick="setDays(30)">30d</button>
+    <button onclick="setDays(90)">90d</button>
   </div>
 
-  <!-- Map -->
   <div id="map"></div>
 
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    // Initialize map
+    // Map
     const map = L.map('map').setView([39.917, -83.808], 11);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Legend (safe reference)
+    // Legend
     let legendDiv;
-
     const legend = L.control({ position: "bottomleft" });
 
     legend.onAdd = function () {
@@ -74,16 +76,21 @@
 
     legend.addTo(map);
 
-    // Property data
+    // State
+    let currentType = "all";
+    let maxDays = 30;
+
+    // Sample data (daysAgo simulates sale date)
     const sales = [
-      { lat: 39.923, lon: -83.810, price: "$215,000", type: "house" },
-      { lat: 39.905, lon: -83.825, price: "$180,000", type: "house" },
-      { lat: 39.940, lon: -83.790, price: "$95,000", type: "lot" }
+      { lat: 39.923, lon: -83.810, price: "$215,000", type: "house", daysAgo: 12 },
+      { lat: 39.905, lon: -83.825, price: "$180,000", type: "house", daysAgo: 45 },
+      { lat: 39.940, lon: -83.790, price: "$95,000", type: "lot", daysAgo: 7 },
+      { lat: 39.960, lon: -83.770, price: "$70,000", type: "lot", daysAgo: 85 }
     ];
 
     let markers = [];
 
-    function draw(type) {
+    function draw() {
       markers.forEach(m => map.removeLayer(m));
       markers = [];
 
@@ -91,7 +98,8 @@
       let lotCount = 0;
 
       sales.forEach(sale => {
-        if (type !== "all" && sale.type !== type) return;
+        if (sale.daysAgo > maxDays) return;
+        if (currentType !== "all" && sale.type !== currentType) return;
 
         const color = sale.type === "house" ? "#1d4ed8" : "#92400e";
 
@@ -105,7 +113,9 @@
         })
           .addTo(map)
           .bindPopup(
-            `<strong>${sale.price}</strong><br>${sale.type.toUpperCase()}`
+            `<strong>${sale.price}</strong><br>
+             ${sale.type.toUpperCase()}<br>
+             Sold ${sale.daysAgo} days ago`
           );
 
         markers.push(marker);
@@ -114,20 +124,26 @@
         if (sale.type === "lot") lotCount++;
       });
 
-      // Update legend counts
       legendDiv.innerHTML = `
         <strong>Legend</strong><br>
-        <span style="color:#1d4ed8;">●</span> Houses: ${houseCount}<br>
-        <span style="color:#92400e;">●</span> Lots: ${lotCount}
+        🔵 Houses: ${houseCount}<br>
+        🟤 Lots: ${lotCount}<br>
+        <em>Last ${maxDays} days</em>
       `;
     }
 
-    function showType(type) {
-      draw(type);
+    function setType(type) {
+      currentType = type;
+      draw();
+    }
+
+    function setDays(days) {
+      maxDays = days;
+      draw();
     }
 
     // Initial draw
-    draw("all");
+    draw();
   </script>
 
 </body>
