@@ -16,104 +16,112 @@
       margin: 0;
       padding: 0;
       height: 100%;
+      font-family: Arial, sans-serif;
     }
-    #map {
-  height: calc(100vh - 50px);
-  width: 100vw;
-}
 
+    #controls {
+      height: 50px;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
     }
- 
+
+    #map {
+      height: calc(100vh - 50px);
+      width: 100vw;
+    }
   </style>
 </head>
 <body>
 
-  <div style="height:50px; padding:10px; background:#f4f4f4; text-align:center;">
-  <button onclick="showType('all')">All</button>
-  <button onclick="showType('house')">Houses</button>
-  <button onclick="showType('lot')">Lots</button>
-</div>
+  <!-- Controls -->
+  <div id="controls">
+    <button onclick="showType('all')">All</button>
+    <button onclick="showType('house')">Houses</button>
+    <button onclick="showType('lot')">Lots</button>
+  </div>
 
-<div id="map"></div>
+  <!-- Map -->
+  <div id="map"></div>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
- <script>
-  const map = L.map('map').setView([39.917, -83.808], 11);
+  <script>
+    // Initialize map
+    const map = L.map('map').setView([39.917, -83.808], 11);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
-// Leaflet legend control
-const legend = L.control({ position: "bottomleft" });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-legend.onAdd = function () {
-  const div = L.DomUtil.create("div", "info legend");
-  div.style.background = "white";
-  div.style.padding = "10px";
-  div.style.borderRadius = "6px";
-  div.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
-  div.style.fontSize = "14px";
+    // Legend
+    const legend = L.control({ position: "bottomleft" });
 
-  div.innerHTML = `
-    <strong>Legend</strong><br>
-    <span style="color:#1d4ed8;">●</span> House<br>
-    <span style="color:#92400e;">●</span> Lot
-  `;
+    legend.onAdd = function () {
+      const div = L.DomUtil.create("div");
+      div.style.background = "white";
+      div.style.padding = "10px";
+      div.style.borderRadius = "6px";
+      div.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
+      div.style.fontSize = "14px";
 
-  return div;
-};
+      div.innerHTML = `
+        <strong>Legend</strong><br>
+        <span style="color:#1d4ed8;">●</span> House<br>
+        <span style="color:#92400e;">●</span> Lot
+      `;
 
-legend.addTo(map);
+      return div;
+    };
 
-  // Property data
-  const sales = [
-    { lat: 39.923, lon: -83.810, price: "$215,000", type: "house" },
-    { lat: 39.905, lon: -83.825, price: "$180,000", type: "house" },
-    { lat: 39.940, lon: -83.790, price: "$95,000", type: "lot" }
-  ];
+    legend.addTo(map);
 
-  let markers = [];
+    // Property data
+    const sales = [
+      { lat: 39.923, lon: -83.810, price: "$215,000", type: "house" },
+      { lat: 39.905, lon: -83.825, price: "$180,000", type: "house" },
+      { lat: 39.940, lon: -83.790, price: "$95,000", type: "lot" }
+    ];
 
-  function draw(type) {
-    // Remove old markers
-    markers.forEach(m => map.removeLayer(m));
-    markers = [];
+    let markers = [];
 
-    sales.forEach(sale => {
-      if (type !== "all" && sale.type !== type) return;
+    function draw(type) {
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
 
-      const iconColor = sale.type === "house" ? "blue" : "brown";
+      sales.forEach(sale => {
+        if (type !== "all" && sale.type !== type) return;
 
-      const color = sale.type === "house" ? "#1d4ed8" : "#92400e";
+        const color = sale.type === "house" ? "#1d4ed8" : "#92400e";
 
-const marker = L.circleMarker([sale.lat, sale.lon], {
-  radius: 7,
-  fillColor: color,
-  color: "#000",
-  weight: 1,
-  opacity: 1,
-  fillOpacity: 0.8
-})
+        const marker = L.circleMarker([sale.lat, sale.lon], {
+          radius: 7,
+          fillColor: color,
+          color: "#000",
+          weight: 1,
+          opacity: 1,
+          fillOpacity: 0.8
+        })
+          .addTo(map)
+          .bindPopup(
+            `<strong>${sale.price}</strong><br>${sale.type.toUpperCase()}`
+          );
 
-        
-      })
-        .addTo(map)
-        .bindPopup(`<strong>${sale.price}</strong><br>${sale.type.toUpperCase()}`);
+        markers.push(marker);
+      });
+    }
 
-      markers.push(marker);
-    });
-  }
+    // Button handler
+    function showType(type) {
+      draw(type);
+    }
 
-  window.showType = function(type) {
-    draw(type);
-  };
+    // Initial draw
+    draw("all");
+  </script>
 
-  // Default
-  draw("all");
-</script>
-
- 
 </body>
 </html>
