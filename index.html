@@ -86,18 +86,18 @@ legend.addTo(map);
 
       const iconColor = sale.type === "house" ? "blue" : "brown";
 
-      const marker = L.marker([sale.lat, sale.lon], {
-        icon: L.icon({
-          iconUrl:
-            iconColor === "blue"
-              ? "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png"
-              : "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-brown.png",
-          shadowUrl:
-            "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34]
-        })
+      const color = sale.type === "house" ? "#1d4ed8" : "#92400e";
+
+const marker = L.circleMarker([sale.lat, sale.lon], {
+  radius: 7,
+  fillColor: color,
+  color: "#000",
+  weight: 1,
+  opacity: 1,
+  fillOpacity: 0.8
+})
+
+        
       })
         .addTo(map)
         .bindPopup(`<strong>${sale.price}</strong><br>${sale.type.toUpperCase()}`);
