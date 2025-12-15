@@ -43,6 +43,27 @@
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
+// Leaflet legend control
+const legend = L.control({ position: "bottomleft" });
+
+legend.onAdd = function () {
+  const div = L.DomUtil.create("div", "info legend");
+  div.style.background = "white";
+  div.style.padding = "10px";
+  div.style.borderRadius = "6px";
+  div.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
+  div.style.fontSize = "14px";
+
+  div.innerHTML = `
+    <strong>Legend</strong><br>
+    <span style="color:#1d4ed8;">●</span> House<br>
+    <span style="color:#92400e;">●</span> Lot
+  `;
+
+  return div;
+};
+
+legend.addTo(map);
 
   // Property data
   const sales = [
