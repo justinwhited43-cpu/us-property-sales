@@ -5,84 +5,43 @@
   <title>US Property Sales</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Leaflet (free map library) -->
+  <!-- Leaflet CSS -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   />
 
   <style>
-    body {
+    body, html {
       margin: 0;
-      font-family: Arial, sans-serif;
-    }
-    header {
-      padding: 10px;
-      background: #222;
-      color: white;
-      text-align: center;
+      padding: 0;
+      height: 100%;
     }
     #map {
-      height: calc(100vh - 50px);
+      height: 100vh;
+      width: 100vw;
     }
   </style>
 </head>
 <body>
 
-  <header>
-  <h2>US Property Sales</h2>
-  <p>Clark County, Ohio</p>
-
-  <div style="margin-top: 8px;">
-    <button onclick="filterSales(7)">Last 7 Days</button>
-    <button onclick="filterSales(30)">Last 30 Days</button>
-    <button onclick="filterSales(90)">Last 90 Days</button>
-  </div>
-</header>
-
   <div id="map"></div>
-  
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  
-<script>
-document.addEventListener("DOMContentLoaded", function () {
 
-  const map =.map('map').setView([39.917, -83.808], 11);
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
+  <script>
+    const map = L.map('map').setView([39.917, -83.808], 11);
 
-  const sales = [
-    { lat: 39.923, lon: -83.810, price: "$215,000", daysAgo: 12 },
-    { lat: 39.905, lon: -83.825, price: "$180,000", daysAgo: 28 },
-    { lat: 39.940, lon: -83.790, price: "$95,000 (Lot)", daysAgo: 7 }
-  ];
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-  const salesLayer = L.layerGroup().addTo(map);
+    L.marker([39.917, -83.808])
+      .addTo(map)
+      .bindPopup("Clark County, Ohio")
+      .openPopup();
+  </script>
 
-  function drawSales(maxDays) {
-    salesLayer.clearLayers();
-
-    sales
-      .filter(s => s.daysAgo <= maxDays)
-      .forEach(sale => {
-        L.circleMarker([sale.lat, sale.lon], { radius: 7 })
-          .bindPopup(
-            `<strong>${sale.price}</strong><br>Sold ${sale.daysAgo} days ago`
-          )
-          .addTo(salesLayer);
-      });
-  }
-
-  window.filterSales = function(days) {
-    drawSales(days);
-  };
-
-  drawSales(30);
-});
-</script>
-
- 
 </body>
 </html>
